@@ -54,7 +54,7 @@ type Maybe<T> = T | null | undefined;
 type InputTypes = Maybe<string | number | boolean | any>;
 export default <T extends { [key in keyof T]: InputTypes }>(
 	fields: T,
-	{ updateOnChange = true, validations = {}, blurs = {} }: UseFormType<T>
+	{ updateOnChange = true, validations = {}, blurs = {} }: UseFormType<T> = {}
 ) => {
 	const cache: any = useRef(fill(fields, false));
 	const internalErrors = useMemo(() => fill(fields, messageFill), [fields]) as FieldMessage<T>;
