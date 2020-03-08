@@ -20,7 +20,7 @@ export type BlurEvent<T> = {
 	setErrors(errorsObject: FieldMessage<T>): any;
 };
 type Blur<T> = {
-	[key: string]: (event: React.FocusEvent<HTMLInputElement>, props: BlurEvent<T>) => any;
+	[key in keyof T]?: (event: React.FocusEvent<HTMLInputElement>, props: BlurEvent<T>) => any;
 };
 
 type UseFormType<State> = {
@@ -52,10 +52,19 @@ const messageFill = { message: "", hasError: false };
 
 type Maybe<T> = T | null | undefined;
 type InputTypes = Maybe<string | number | boolean | any>;
+
 export default <T extends { [key in keyof T]: InputTypes }>(
 	fields: T,
-	{ updateOnChange = true, validations = {}, blurs = {} }: UseFormType<T> = {}
-) => {
+	{ updateOnChange = true, validations = {}, blurs = {} as Blur<T> }: UseFormType<T> = {}
+): {
+	clearState(): any;
+	onChange(event: React.ChangeEvent<HTMLInputElement>): any;
+	setState(newProps: Partial<T>): any;
+	setErrors(errors: FieldMessage<T>): any;
+	blurEvents: Blur<T>;
+	errors: FieldMessage<T>;
+	state: T;
+} => {
 	const cache: any = useRef(fill(fields, false));
 	const internalErrors = useMemo(() => fill(fields, messageFill), [fields]) as FieldMessage<T>;
 
@@ -97,7 +106,7 @@ export default <T extends { [key in keyof T]: InputTypes }>(
 		return dispatch.onChange(event);
 	};
 
-	const blurEvents: any = useMemo(
+	const blurEvents = useMemo(
 		() =>
 			getKeys(blurs).reduce((acc, el) => {
 				if (!!blurs && blurs.hasOwnProperty(el)) {
