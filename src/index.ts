@@ -26,7 +26,7 @@ type Blur<T> = {
 type UseFormType<State> = {
 	blurs?: Blur<State>;
 	updateOnChange?: boolean;
-	validations?: { [key: string]: (fieldValue: any, state: State) => { isValid: boolean; msg: string } } & Object;
+	validations?: { [key in keyof State]: (fieldValue: State[key], state: State) => { isValid: boolean; msg: string } } & Object;
 };
 
 const getKeys = Object.keys;
@@ -55,7 +55,7 @@ type InputTypes = Maybe<string | number | boolean | any>;
 
 export default <T extends { [key in keyof T]: InputTypes }>(
 	fields: T,
-	{ updateOnChange = true, validations = {}, blurs = {} as Blur<T> }: UseFormType<T> = {}
+	{ updateOnChange = true, validations = {} as any, blurs = {} as Blur<T> }: UseFormType<T> = {}
 ): {
 	clearState(): any;
 	onChange(event: React.ChangeEvent<HTMLInputElement>): any;
