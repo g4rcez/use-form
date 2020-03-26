@@ -26,7 +26,10 @@ type Blur<T> = {
 type UseFormType<State> = {
 	blurs?: Blur<State>;
 	updateOnChange?: boolean;
-	validations?: { [key in keyof State]?: (fieldValue: State[key], state: State) => { isValid: boolean; msg: string } } & Object;
+	validations?: {
+		[key in keyof State]?: (fieldValue: State[key], state: State) => { isValid: boolean; msg: string };
+	} &
+		Object;
 };
 
 const getKeys = Object.keys;
@@ -62,6 +65,7 @@ export default <T extends { [key in keyof T]: InputTypes }>(
 	setState(newProps: Partial<T>): any;
 	setErrors(errors: FieldMessage<T>): any;
 	blurEvents: Blur<T>;
+	hasErrors: boolean;
 	errors: FieldMessage<T>;
 	state: T;
 } => {
@@ -131,5 +135,7 @@ export default <T extends { [key in keyof T]: InputTypes }>(
 		valuesDependency
 	);
 
-	return { clearState, onChange, setState, setErrors, blurEvents, errors: state.errors, state: values };
+	const hasErrors = useMemo(() => Object.values(state.errors).some((x: any) => x.hasError), [state.errors]);
+
+	return { clearState, hasErrors, onChange, setState, setErrors, blurEvents, errors: state.errors, state: values };
 };
