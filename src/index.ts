@@ -26,7 +26,7 @@ type Blur<T> = {
 type UseFormType<State> = {
 	blurs?: Blur<State>;
 	updateOnChange?: boolean;
-	validations?: { [key in keyof State]: (fieldValue: State[key], state: State) => { isValid: boolean; msg: string } } & Object;
+	validations?: { [key in keyof State]?: (fieldValue: State[key], state: State) => { isValid: boolean; msg: string } } & Object;
 };
 
 const getKeys = Object.keys;
