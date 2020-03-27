@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import useReducer from "use-typed-reducer";
+
 type FieldMessage<T> = { [key in keyof T]?: { message: any; hasError: boolean } };
 
 const isEmpty = (object?: Object) => {
@@ -19,18 +20,15 @@ export type BlurEvent<T> = {
 	setState(newProps: Partial<T>): any;
 	setErrors(errorsObject: FieldMessage<T>): any;
 };
-type Blur<T> = {
-	[key in keyof T]?: (event: React.FocusEvent<HTMLInputElement>, props: BlurEvent<T>) => any;
-};
+type Blur<T> = { [key in keyof T]?: (event: React.FocusEvent<HTMLInputElement>, props: BlurEvent<T>) => any };
+type FunctionValidate<State, Key extends keyof State> = (
+	field: State[Key],
+	state: State
+) => { isValid: boolean; msg: string };
 
-type UseFormType<State> = {
-	blurs?: Blur<State>;
-	updateOnChange?: boolean;
-	validations?: {
-		[key in keyof State]?: (fieldValue: State[key], state: State) => { isValid: boolean; msg: string };
-	} &
-		Object;
-};
+type Validations<State> = { [key in keyof State]?: FunctionValidate<State, key> };
+
+type UseFormType<State> = { blurs?: Blur<State>; updateOnChange?: boolean; validations?: Validations<State> };
 
 const getKeys = Object.keys;
 
@@ -56,7 +54,7 @@ const messageFill = { message: "", hasError: false };
 type Maybe<T> = T | null | undefined;
 type InputTypes = Maybe<string | number | boolean | any>;
 
-export default <T extends { [key in keyof T]: InputTypes }>(
+const useForm = <T extends { [key in keyof T]: InputTypes }>(
 	fields: T,
 	{ updateOnChange = true, validations = {} as any, blurs = {} as Blur<T> }: UseFormType<T> = {}
 ): {
@@ -66,6 +64,7 @@ export default <T extends { [key in keyof T]: InputTypes }>(
 	setErrors(errors: FieldMessage<T>): any;
 	blurEvents: Blur<T>;
 	hasErrors: boolean;
+	allMatch: boolean;
 	errors: FieldMessage<T>;
 	state: T;
 } => {
@@ -137,5 +136,22 @@ export default <T extends { [key in keyof T]: InputTypes }>(
 
 	const hasErrors = useMemo(() => Object.values(state.errors).some((x: any) => x.hasError), [state.errors]);
 
-	return { clearState, hasErrors, onChange, setState, setErrors, blurEvents, errors: state.errors, state: values };
+	const allMatch = useMemo(
+		() => Object.entries(validations).every(([key, fn]: any) => fn(state.fields[key], state)),
+		[state.fields]
+	);
+
+	return {
+		clearState,
+		allMatch,
+		hasErrors,
+		onChange,
+		setState,
+		setErrors,
+		blurEvents,
+		errors: state.errors,
+		state: values
+	};
 };
+
+export default useForm;

@@ -4,7 +4,6 @@ import commonjs from "rollup-plugin-commonjs";
 import external from "rollup-plugin-peer-deps-external";
 import strip from "@rollup/plugin-strip";
 import typescript from "rollup-plugin-typescript2";
-import visualizer from "rollup-plugin-visualizer";
 import pkg from "./package.json";
 
 export default {
@@ -35,7 +34,6 @@ export default {
 		strip(),
 		external(),
 		url(),
-		visualizer(),
 		commonjs({ sourceMap: false, ignoreGlobal: false }),
 		typescript({ rollupCommonJSResolveHack: true, clean: true }),
 		resolve({ browser: true, preferBuiltins: false })
