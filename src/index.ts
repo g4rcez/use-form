@@ -92,7 +92,7 @@ const useForm = <T extends { [key in keyof T]: InputTypes }>(
 } => {
 	const [initialState] = useState(fields);
 	const cache: any = useRef(fill(fields, false));
-	const internalErrors = useMemo(() => fill(fields, messageFill), [fields]) as FieldMessage<T>;
+	const internalErrors = useMemo(() => fill(fields, messageFill), []) as FieldMessage<T>;
 
 	const [state, dispatch] = useReducer({ fields, errors: internalErrors }, actions, false);
 
