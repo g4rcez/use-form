@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import useReducer from "use-typed-reducer";
 
-type FieldMessage<T> = {
-	[key in keyof T]?: { message: any; hasError: boolean };
-};
+type FieldMessage<T> = { [key in keyof T]?: { message: any; hasError: boolean } };
 
 const isEmpty = (object?: Object) => {
 	if (object === undefined || object === null) {
@@ -32,9 +30,7 @@ type FunctionValidate<State, Key extends keyof State> = (
 	state: State
 ) => { isValid: boolean; msg: string };
 
-type Validations<State> = {
-	[key in keyof State]?: FunctionValidate<State, key>;
-};
+type Validations<State> = { [key in keyof State]?: FunctionValidate<State, key> };
 
 type UseFormType<State> = {
 	blurs?: Blur<State>;
@@ -90,7 +86,6 @@ const useForm = <T extends { [key in keyof T]: InputTypes }>(
 	errors: FieldMessage<T>;
 	state: T;
 } => {
-	const [initialState] = useState(fields);
 	const cache: any = useRef(fill(fields, false));
 	const internalErrors = useMemo(() => fill(fields, messageFill), []) as FieldMessage<T>;
 
@@ -102,7 +97,7 @@ const useForm = <T extends { [key in keyof T]: InputTypes }>(
 
 	const setErrors = useCallback((errors: FieldMessage<T>) => dispatch.aggregateErrors(errors), []);
 
-	const clearState = useCallback((emptyState: Partial<T> = initialState) => dispatch.setState(emptyState), []);
+	const clearState = useCallback((emptyState: Partial<T> = fields) => dispatch.setState(emptyState), []);
 
 	useEffect(() => {
 		if (updateOnChange) {
